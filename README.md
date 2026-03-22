@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-3.0.0-blue.svg)](CHANGELOG.md)
+[![CI](https://github.com/agntlab/claude-notetaker/actions/workflows/skill-scan.yml/badge.svg)](https://github.com/agntlab/claude-notetaker/actions/workflows/skill-scan.yml)
 
 Voice-friendly note capture for Claude. Capture ideas hands-free while driving, walking, or cooking. Fillers, false starts, and dictation artifacts are cleaned up automatically. Notes are organized into handoff files you can pick up in future sessions.
 

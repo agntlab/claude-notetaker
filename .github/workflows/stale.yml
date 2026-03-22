@@ -1,0 +1,24 @@
+name: 'Close stale issues'
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # Every Monday at 9am UTC
+
+permissions:
+  issues: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          stale-issue-message: 'This issue has been automatically marked as stale because it has not had recent activity. It will be closed in 14 days if no further activity occurs. If this is still relevant, please comment to keep it open.'
+          close-issue-message: 'Closed due to inactivity. Feel free to reopen with new information.'
+          days-before-stale: 30
+          days-before-close: 14
+          stale-issue-label: 'stale'
+          exempt-issue-labels: 'confirmed,help-wanted,critical'
+          stale-pr-message: 'This PR has been automatically marked as stale because it has not had recent activity. It will be closed in 14 days if no further activity occurs.'
+          days-before-pr-stale: 21
+          days-before-pr-close: 14
+          stale-pr-label: 'stale'
