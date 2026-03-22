@@ -1,0 +1,80 @@
+name: Skill File Security Scan
+
+on:
+  pull_request:
+    paths:
+      - 'notetaker.md'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for invisible Unicode characters
+        run: |
+          # Check for zero-width spaces, zero-width joiners, and other invisible characters
+          if grep -P '[\x{200B}\x{200C}\x{200D}\x{FEFF}\x{00AD}\x{2060}\x{180E}]' notetaker.md; then
+            echo "::error::Invisible Unicode characters detected in notetaker.md"
+            exit 1
+          fi
+          echo "No invisible Unicode characters found."
+
+      - name: Check for prompt injection patterns
+        run: |
+          PATTERNS=(
+            "ignore previous"
+            "ignore all previous"
+            "disregard previous"
+            "forget your instructions"
+            "you are now"
+            "new instructions"
+            "override"
+            "system prompt"
+            "act as"
+            "pretend to be"
+            "jailbreak"
+            "DAN"
+            "do anything now"
+          )
+          FOUND=0
+          for pattern in "${PATTERNS[@]}"; do
+            if grep -i "$pattern" notetaker.md; then
+              echo "::error::Potential prompt injection pattern found: $pattern"
+              FOUND=1
+            fi
+          done
+          if [ $FOUND -eq 1 ]; then
+            exit 1
+          fi
+          echo "No prompt injection patterns detected."
+
+      - name: Validate YAML frontmatter
+        run: |
+          # Check that frontmatter exists and has required fields
+          if ! head -1 notetaker.md | grep -q "^---$"; then
+            echo "::error::Missing YAML frontmatter"
+            exit 1
+          fi
+          if ! grep -q "^name:" notetaker.md; then
+            echo "::error::Missing 'name' field in frontmatter"
+            exit 1
+          fi
+          if ! grep -q "^description:" notetaker.md; then
+            echo "::error::Missing 'description' field in frontmatter"
+            exit 1
+          fi
+          if ! grep -q "^version:" notetaker.md; then
+            echo "::error::Missing 'version' field in frontmatter"
+            exit 1
+          fi
+          echo "YAML frontmatter valid."
+
+      - name: Check file size
+        run: |
+          SIZE=$(wc -c < notetaker.md)
+          # Skill files should stay under 15KB to be effective
+          if [ "$SIZE" -gt 15000 ]; then
+            echo "::warning::notetaker.md is ${SIZE} bytes. Skill files work best under 15KB."
+          fi
+          echo "File size: ${SIZE} bytes"
